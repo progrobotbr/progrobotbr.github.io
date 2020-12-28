@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+	<meta name="author" content="R.A.Lima">
+	<meta name="reply-to" content="rlmabra@gmail.com">
+    <meta name="Description" CONTENT="Author: R. A. Lima, Category: Programming for children">
+    <meta name="google-site-verification" content="+nxGUDJ4QpAZ5l9Bsjdi102tLVC21AIh5d1Nl23908vVuFHs34="/>
+    <title>Robot Programming Children, Programação para Crianças</title>
+    <meta name="robots" content="index,follow,noarchive">
+	<meta name="googlebot" content="index,follow,noarchive">
+	<meta name="keywords" content="children, child, programming criança, programação, robot, robô, jogo, game, puzzle, raciocício, lógico, lógica">
+
+<style>
+#botao{
+ position: fixed;
+  top: 40px;
+  left: 320px; 
+}
+
+#comandos{
+ position: fixed;
+  top: 60px;
+  left: 10px;
+  min-height: 200px;
+  min-width: 380px;  
+}
+
+#exemplotexto{
+ position: fixed;
+  top: 470px;
+  left: 10px;
+  min-height: 100px;
+  min-width: 380px;  
+}
+
+#arvore{
+ position: fixed;
+  top: 17px;
+  left: 770px;
+  width: 40px;
+  height: 40px;
+}
+
+#joan {
+  position: fixed;
+  left: 27px;
+  width: 27px;
+  transform: rotate(0deg);
+ 
+}
+
+#joanbk {
+  position: fixed;
+  top: 10px;
+  left: 20px;
+  width: 50px;
+  border: 3px solid #73AD21;
+}
+
+#joanbk2{
+ position: fixed;
+  top: 10px;
+  left: 20px;
+  width: 25px;
+  height: 25px;
+  transform: rotate(0deg);
+  display: "None";
+}
+
+#box1 {
+  position: fixed;
+  top: 300px;
+  left: 100px;
+  width: 100px;
+  height: 100px;
+  border: 3px solid #73AD21;
+}
+
+</style>
+<script>
+
+ const LESTE = 'L';
+ const NORTE = 'N';
+ const SUL   = 'S';
+ const OESTE = 'O';
+ 
+ var gboxtop = 60;
+ var gboxleft = 400;
+ var gpas = 40;
+ var gspa =  1;
+ var gJoanGrau = "empe"; //"baixo"
+ var globalColor = "FFFFFF";
+ var glovalGrau = 0;
+ var joanLin = 0; var joanCol=0;
+ var globalPos = 0; "N, L, O, S"
+ var globalPontosCardeias = [ 'N','L','S','O'];
+ var joanCaminho = [ [ 'a', 1 ], [ 'd' ], ['a', 3], ['e'], ['a',2], ['d'], ['a',3], ['e'], ['a', 3], ['d'], ['a',3], ['e'], ['a',5]];
+ var gcamIndex=0;
+ var gVelocidade=400;
+	 
+ function createDiv(){
+ 
+ var vqtd = 10;
+	var vtop = gboxtop;
+	var vleft= gboxleft;
+	
+	
+	var bbody = document.getElementById("mbody");
+	var sborder = "1px solid #73AD21";
+	//sborder = "1px solid #000000";
+	
+    for(var vlin=0; vlin<vqtd; vlin++){
+		for(var vcol=0; vcol<vqtd; vcol++){
+			var div = document.createElement('div');
+			div.id='div'+vlin+"_"+vcol;
+			div.style.border = sborder;
+			div.style.position = "fixed";
+			div.style.top = vtop+"px";
+			div.style.left = vleft+"px";
+			div.style.height = div.style.width = gpas + "px";
+			
+			bbody.appendChild(div);
+			
+			vtop+=gpas+gspa;
+			
+		}
+		vleft += gpas+gspa;
+		vtop = gboxtop;
+	}
+ }
+  
+ function posJoan(lin, col){
+	var vleft, vtop;
+	var joan = document.getElementById("joan");
+
+	joan.style.position = "fixed";
+	
+	if(gJoanGrau==="empe"){
+		vtop = ( ( gboxtop + (lin - 1 ) * ( gpas + gspa ) ) + 8 )+ "px";
+		vleft  = ( ( gboxleft + (col -1 )* ( gpas + gspa ) ) + 8 )+ "px";
+	}else{
+		vtop = ( ( gboxtop + (lin - 1 ) * ( gpas + gspa ) ) + 8 )+ "px";
+		vleft  = ( ( gboxleft + (col -1 )* ( gpas + gspa ) ) - 3 )+ "px";
+	}
+	joan.style.top = vtop;
+	joan.style.left = vleft
+	
+	joan.style.position = "fixed";
+	joan.style.height = joan.style.width = gpas - 2;
+	joan.style.display = "";
+	joan.style.zIndex = "1000";
+	
+ }
+ 
+ function createBuracoVertical(lin, col){
+ 
+	var vtop, vleft;
+	var vcolor = globalColor;
+	var bbody = document.getElementById("zz");
+	
+	var div = document.createElement('div');
+	div.id='divBur'+col;
+	div.style.position = "fixed";
+	
+	vtop  = ( gboxtop + (lin * ( gpas + gspa ) ) - gspa +  8 ) + "px";
+	vleft = ( gboxleft + (col * ( gpas + gspa ) )  - gspa ) + "px";
+		
+	div.style.top = vtop;
+	div.style.left = vleft;
+	div.style.height = ( gpas - 13)  + "px";
+	div.style.width= 1 + "px";
+	div.style.backgroundColor=`#${vcolor}`;
+	
+	var sborder = `1px solid #${vcolor}`;
+	div.style.border = sborder;
+	joan.style.zIndex = "1001";
+	
+	bbody.appendChild(div);
+	
+ }
+ 
+ function createBuracoHorizontal(lin, col){
+ 
+	var vtop, vleft;
+	var vcolor = globalColor;
+	var bbody = document.getElementById("zz");
+	
+	var div = document.createElement('div');
+	div.id='divBur'+col;
+	div.style.position = "fixed";
+	
+	vtop  = ( ( gboxtop + (lin)* ( gpas + gspa) ) - gspa )+ "px";
+	vleft = ( ( gboxleft + (col)* ( gpas + gspa	) ) + 7)+ "px";
+		
+	div.style.top = vtop;
+	div.style.left = vleft;
+	div.style.height = 1 + "px"; ;
+	div.style.width= ( gpas - 13)  + "px";
+	div.style.backgroundColor=`#${vcolor}`;
+	
+	var sborder = `1px solid #${vcolor}`;
+	div.style.border = sborder;
+	joan.style.zIndex = "1001";
+	
+	bbody.appendChild(div);
+	
+ }
+ 
+ function JoanIni(){
+	joanLin = 11; joanCol=1;
+	gcamIndex=0;
+	globalPos = 0;
+	glovalGrau = 0;
+	var joan = document.getElementById("joan");
+	joan.style.transform = `rotate(${glovalGrau}deg)`;
+	posJoan(11,1);
+ }
+ 
+ function JoanEsquerda(){
+ 
+    glovalGrau -= 90;
+	if(glovalGrau<0){
+		glovalGrau=270;
+	}
+	
+	var joan = document.getElementById("joan");
+	joan.style.transform = `rotate(${glovalGrau}deg)`;
+	
+	globalPos--;
+	if(globalPos<0){
+		globalPos=3;
+	}
+		
+ }
+  
+ function JoanDireita(){
+ 
+    glovalGrau += 90;
+	if(glovalGrau===360){
+		glovalGrau=0;
+	}
+	
+	var joan = document.getElementById("joan");
+	joan.style.transform = `rotate(${glovalGrau}deg)`;
+		
+	globalPos++;
+	if(globalPos>3){
+		globalPos=0;
+	}
+ }
+ 
+ function createLab(){
+  
+    var mArr = [ ['h',10, 0], 
+	             ['v', 9, 1], 
+				 ['v', 9, 2], 
+				 ['v', 9, 3],
+				 ['h', 9, 3], 
+				 ['h', 8, 3], 
+				 ['v', 7, 3],
+				 ['v', 7, 4],
+				 ['v', 7, 5],
+				 ['v', 7, 6],
+				 ['h', 7, 6],
+				 ['h', 6, 6],
+				 ['h', 5, 6],
+				 
+				 ['v', 4, 7],
+				 ['v', 4, 8],
+				 ['v', 4, 9],
+				 ['h', 4, 9],
+				 
+				 ['h', 3, 9],
+				 ['h', 2, 9],
+				 ['h', 1, 9],
+				 ['h', 0, 9],
+				];
+	
+	for(var a1 of mArr){
+	  if(a1[0] === 'v'){
+		createBuracoVertical(a1[1],a1[2]);
+	  }else{
+		createBuracoHorizontal(a1[1],a1[2])
+	  }
+	}
+ }
+ 
+
+ 
+ 
+ function JoanAnda(){
+ 
+	var joan = document.getElementById("joan");
+	var vv
+	
+	//joanLin = 11; joanCol=1;
+	
+	//for(var  of joanCaminho){
+	if(gcamIndex>=joanCaminho.length){
+		fim();
+		return;
+	}
+	
+	var vv = joanCaminho[gcamIndex];
+	gcamIndex++;
+	
+	   switch(vv[0]){
+			case 'a':
+			    switch(globalPontosCardeias[globalPos]){
+					case NORTE:
+						joanLin-=vv[1];
+						break;
+					case SUL:
+						joanLin+=vv[1];
+						break;
+					case OESTE:
+						joanCol-=vv[1];
+						break;
+					case LESTE:
+						joanCol+=vv[1];
+						break;
+				}
+				
+				posJoan(joanLin, joanCol);
+				break;
+			case 'd':
+				JoanDireita();
+				break;
+			case 'e':
+				JoanEsquerda();
+			    break;
+			case 'v':
+				switch(vv[1]){
+					case 'r':
+						velocidadeRapida();
+						break;
+					case 'n':
+						velocidadeNormal();
+						break;
+					case 'l':
+						velocidadeLenta();
+						break;
+				}
+			    break;
+	   }
+	   
+	   JoanAndaBase();
+
+	//}
+ }
+ 
+ function JoanAndaBase(){
+	setTimeout(JoanAnda, gVelocidade);
+ } 
+ 
+ function executar(oEvent){
+ 
+	if(parse()){
+		JoanIni();
+		JoanAndaBase();
+	}
+ 
+ }
+ 
+ function parse(){
+	var comandos = document.getElementById("comandos");
+	var sTexto = comandos.value.toLowerCase();
+	
+	if(sTexto.trim().length===0){
+	   alert("Para ver a Joana chegar na árvore, digite as instruções corretas");
+	   return;
+	}
+	
+	var mm = sTexto.split("\n");
+	
+	joanCaminho = [];
+	
+    for(var vcs of mm){
+		if(vcs.trim().length===0){
+			continue;
+		}
+		var vc = vcs.trim().split(" ");
+		var vtam = vc.length;
+		var mins = [];
+		
+		switch(vc[0]){
+			case "andar":
+			    if(vtam!==3){
+					alert(`Comando errado, utilizar (andar número casa ou casas) e não: ${vcs}`);
+					return false;
+				}
+			    var n = vc[1];
+				try{
+					var i = Number.parseInt(n);
+				}catch(err){
+					alert(`Deve ser informado um número válido e não: ${n}`);
+					return false;
+				}
+				
+				if(isNaN(i)){
+					alert(`Deve ser informado um número válido e não: ${n}`);
+					return false;
+				}
+					
+				if( !((i === 1 && vc[2]==="casa") || ( i>1&& vc[2]==="casas")) ){
+				    var vcasas="";
+					if(i===1){
+						vcasas = "casa";
+					}else{
+						vcasas = "casas";
+					}
+					alert(`Finalizar com ${vcasas} e não ${vc[2]}`);
+					return false;
+				}
+				
+				for(var z=0; z<i; z++){
+					mins = [];
+					mins.push("a");
+					mins.push(1);
+					joanCaminho.push(mins);
+				}
+				break;
+			case "virar":
+				     
+			    if(vc[1]!=="direita" && vc[1]!=="esquerda"  ){
+					alert(`Informar a direção correta (direita ou esquerda) e não: ${vc[1]}`);
+					return false
+				}
+				if(vc[1]==="direita" ){
+					mins.push("d");
+				}else{
+					mins.push("e");
+				}
+				
+				joanCaminho.push(mins);
+				
+				break;
+			case "velocidade":
+				if(vtam!==2){
+					alert(`Comando errado, utilizar (velocidade lenta, normal ou rápida) e não: ${vcs}`);
+					return false;
+				}
+				
+			    switch(vc[1]){
+					case "rápida":
+						mins.push("v", "r");
+						break;
+					case "normal":
+						mins.push("v", "n");
+						break;
+					case "lenta":
+						mins.push("v", "l");
+						break;
+					default:
+						alert(`Faltou informar a velocidade como rápida, normal ou lenta`);
+						return false;
+				}
+				joanCaminho.push(mins);
+				break;
+				
+			default:
+				alert(`Não entendido o comando: ${vcs}`);
+				return false;
+				
+		}
+	
+	}
+	
+	return true;
+		
+ }
+ 
+ function velocidadeRapida(){
+   gVelocidade = 100;
+ }
+ 
+ function velocidadeNormal(){
+   gVelocidade = 400;
+ }
+ 
+ function velocidadeLenta(){
+   gVelocidade = 1000;
+ }
+ 
+ function fim(){
+	alert("Fim");
+ }
+ 
+ window.onload = function() {
+  createDiv();
+  createLab();
+  JoanIni();
+  //JoanAndaBase();
+};
+ 
+</script>
+</head>
+<body id='zz'>
+  <div id='comandosbox'" ><Textarea id='comandos' rows="27"></Textarea></div>
+  <div id='arvore'><img src="arvore.png" alt="Habitate" width="40px" height="40px"></div>
+  <div id="mbody"></div>
+  <div id='joan'><img src="joan.png" alt="Joaninha" width="25px" height="25px"></div>
+  <div id='botao'><input type="button" value="Executar" onclick="executar()"></div>
+  <div id='exemplo'>
+    <Textarea id='exemplotexto' rows="4" readonly>
+Comandos andar, virar, velocidade
+Exemplo:
+	andar 5 casas
+	andar 1 casa
+	virar direita
+	virar esquerda
+	velocidade normal
+	velocidade rápida
+	velcidade lenta
+	</Textarea>
+  </div>
+  <!--
+  style="display:None"
+  comandos:
+      mover 2 casas
+	  virar direita 
+	  virar esquerda
+	  velocidade rápida
+	  velocidade normal
+	  velocidade lenta
+	  
+
+  exemplo:
+    andar 1 casa
+	virar direita
+	andar 3 casas
+	virar esquerda
+	andar 2 casas
+	virar direita
+	andar 3 casas
+	virar esquerda
+	andar 3 casas
+	virar direita
+	andar 3 casas
+	virar esquerda 
+	andar 5 casas
+  -->
+</body>
+</html>
